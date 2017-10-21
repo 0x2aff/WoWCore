@@ -25,31 +25,8 @@ using System.Reflection;
 
 namespace WoWCore.Common.Config
 {
-    public sealed class ConfigManager
+    public sealed class ConfigManager : Singleton<ConfigManager>
     {
-        #region Singleton
-
-        private static volatile ConfigManager _instance;
-        private static readonly object SyncLock = new object();
-
-        private ConfigManager() { }
-
-        public static ConfigManager Instance
-        {
-            get
-            {
-                if (_instance != null) return _instance;
-
-                lock (SyncLock)
-                    if (_instance == null)
-                        _instance = new ConfigManager();
-
-                return _instance;
-            }
-        }
-
-        #endregion
-
         /// <summary>
         /// The type of configs.
         /// </summary>
