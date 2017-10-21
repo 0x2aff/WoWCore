@@ -16,15 +16,13 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-
 namespace WoWCore
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            
         }
     }
 }
