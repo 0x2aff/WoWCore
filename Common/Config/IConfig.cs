@@ -19,7 +19,7 @@
 namespace WoWCore.Common.Config
 {
     /// <summary>
-    /// Maker interface pattern.
+    /// Marker interface pattern.
     /// Todo: Replace the interface with a custom attribute.
     /// </summary>
     public interface IConfig
