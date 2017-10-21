@@ -21,8 +21,15 @@ using WoWCore.Common.Config;
 
 namespace WoWCore.AuthServer
 {
+    /// <summary>
+    /// Entrypoint class responsible for the authentication server.
+    /// </summary>
     internal class Program
     {
+        /// <summary>
+        /// Entrypoint of the authentication server.
+        /// </summary>
+        /// <param name="args"></param>
         private static void Main(string[] args)
         {
             Console.Title = "WoWCore Authentication Server";

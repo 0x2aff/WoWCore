@@ -50,6 +50,9 @@ namespace WoWCore.Common.Config
 
         #endregion
 
+        /// <summary>
+        /// The type of configs.
+        /// </summary>
         public enum ConfigType
         {
             AuthServer,
@@ -58,6 +61,12 @@ namespace WoWCore.Common.Config
 
         private readonly Dictionary<ConfigType, IConfig> _settingsRegister = new Dictionary<ConfigType, IConfig>();
 
+        /// <summary>
+        /// Register a loaded config file to make it globally available.
+        /// </summary>
+        /// <typeparam name="T"><see cref="IConfig"/></typeparam>
+        /// <param name="type"><see cref="ConfigType"/></param>
+        /// <param name="fileName">The name/path of the config file.</param>
         public void RegisterSettings<T>(ConfigType type, string fileName) where T : IConfig
         {
             var jsonConfig = File.ReadAllText(fileName);
@@ -74,6 +83,12 @@ namespace WoWCore.Common.Config
             }        
         }
 
+        /// <summary>
+        /// Get the config.
+        /// </summary>
+        /// <typeparam name="T"><see cref="IConfig"/></typeparam>
+        /// <param name="type"><see cref="ConfigType"/></param>
+        /// <returns><see cref="IConfig"/> by the registered <see cref="ConfigType"/></returns>
         public T GetSettings<T>(ConfigType type) where T : IConfig
         {
             return (T) _settingsRegister.First(x => x.Key == type).Value;
