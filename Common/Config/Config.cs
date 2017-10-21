@@ -16,18 +16,10 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System;
-using WoWCore.Common.Config;
-
-namespace WoWCore.AuthServer
+namespace WoWCore.Common.Config
 {
-    internal class Program
+    public interface IConfig
     {
-        private static void Main(string[] args)
-        {
-            Console.Title = "WoWCore Authentication Server";
 
-            ConfigManager.Instance.RegisterSettings<Settings.Settings>(ConfigManager.ConfigType.AuthServer, "AuthServerConfig.json");
-        }
     }
 }
