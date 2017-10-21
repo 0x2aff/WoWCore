@@ -1,3 +1,10 @@
 ﻿{
-  "LogPath": "./logs/"
+  "Connection": {
+    "ServerIp": "127.0.0.1",
+    "ServerPort": "3724" 
+  },
+  "Logging": {
+    "LogsDir": "",
+    "LogFile": "AuthServer.log" 
+  } 
 }

@@ -16,13 +16,11 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace WoWCore.Common.Config
+namespace WoWCore.AuthServer.Config
 {
-    /// <summary>
-    /// Marker interface pattern.
-    /// </summary>
-    public interface IConfig
+    public class ConnectionConfig
     {
-
+        public string ServerIp { get; set; }
+        public int ServerPort { get; set; }
     }
 }

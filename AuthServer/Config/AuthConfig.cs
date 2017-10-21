@@ -18,10 +18,11 @@
 
 using WoWCore.Common.Config;
 
-namespace WoWCore.AuthServer.Settings
+namespace WoWCore.AuthServer.Config
 {
-    public class Settings : IConfig
+    public class AuthConfig : IConfig
     {
-        public string LogPath { get; set; }
+        public ConnectionConfig Connection { get; set; }
+        public LoggingConfig Logging { get; set; }
     }
 }

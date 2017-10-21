@@ -69,8 +69,17 @@ namespace WoWCore.Common.Config
         /// <param name="fileName">The name/path of the config file.</param>
         public void RegisterSettings<T>(ConfigType type, string fileName) where T : IConfig
         {
-            var jsonConfig = File.ReadAllText(fileName);
-            var setting = JsonConvert.DeserializeObject<T>(jsonConfig) as IConfig;
+            IConfig setting;
+
+            try
+            {
+                var jsonConfig = File.ReadAllText(fileName);
+                setting = JsonConvert.DeserializeObject<T>(jsonConfig) as IConfig;
+            }
+            catch (Exception)
+            {
+                throw new Exception();
+            }
 
             try
             {
@@ -79,7 +88,7 @@ namespace WoWCore.Common.Config
             }
             catch (ArgumentException)
             {
-                Console.WriteLine("[WARNING][" + GetType() + "::" + MethodBase.GetCurrentMethod().Name + "]: An element with the same key already exists in the dictionary.");
+                Console.WriteLine("[WARNING][" + typeof(ConfigManager) + "::" + MethodBase.GetCurrentMethod().Name + "]: An element with the same key already exists in the dictionary.");
             }        
         }
 

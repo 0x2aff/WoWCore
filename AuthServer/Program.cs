@@ -17,6 +17,8 @@
  */
 
 using System;
+using System.Reflection;
+using WoWCore.AuthServer.Config;
 using WoWCore.Common.Config;
 
 namespace WoWCore.AuthServer
@@ -34,7 +36,15 @@ namespace WoWCore.AuthServer
         {
             Console.Title = "WoWCore Authentication Server";
 
-            ConfigManager.Instance.RegisterSettings<Settings.Settings>(ConfigManager.ConfigType.AuthServer, "AuthServerConfig.json");
+            try
+            {
+                ConfigManager.Instance.RegisterSettings<AuthConfig>(ConfigManager.ConfigType.AuthServer, "AuthServerConfig.json");
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("[ERROR][" + typeof(Program) + "::" + MethodBase.GetCurrentMethod().Name + "]: Can't load the AuthServerConfig.json.");
+                return;
+            }
         }
     }
 }
