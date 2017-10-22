@@ -38,7 +38,7 @@ namespace WoWCore.AuthServer
 
             try
             {
-                ConfigManager.Instance.RegisterSettings<AuthConfig>(ConfigManager.ConfigType.AuthServer, "AuthServerConfig.json");
+                ConfigManager.Instance.RegisterSettings<AuthConfig>("AuthServerConfig.json");
             }
             catch (Exception)
             {
