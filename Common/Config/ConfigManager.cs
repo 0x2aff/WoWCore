@@ -51,7 +51,7 @@ namespace WoWCore.Common.Config
             try
             {
                 var jsonConfig = File.ReadAllText(fileName);
-                setting = JsonConvert.DeserializeObject<T>(jsonConfig) as IConfig;
+                setting = JsonConvert.DeserializeObject<T>(jsonConfig);
             }
             catch (Exception)
             {
