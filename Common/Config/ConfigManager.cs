@@ -59,9 +59,9 @@ namespace WoWCore.Common.Config
             {
                 _settings = JsonConvert.DeserializeObject<T>(File.ReadAllText(fileName));
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new Exception();
+                throw new Exception(e.Message);
             }    
         }
 

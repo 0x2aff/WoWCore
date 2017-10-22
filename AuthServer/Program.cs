@@ -17,9 +17,10 @@
  */
 
 using System;
-using System.Reflection;
+using System.Threading.Tasks;
 using WoWCore.AuthServer.Config;
 using WoWCore.Common.Config;
+using WoWCore.Common.Logging;
 
 namespace WoWCore.AuthServer
 {
@@ -32,19 +33,28 @@ namespace WoWCore.AuthServer
         /// Entrypoint of the authentication server.
         /// </summary>
         /// <param name="args"></param>
-        private static void Main(string[] args)
+        private static void Main(string[] args) => new Program().Run().GetAwaiter();
+
+        private Task Run()
         {
             Console.Title = "WoWCore Authentication Server";
 
-            try
-            {
-                ConfigManager.Instance.RegisterSettings<AuthConfig>("AuthServerConfig.json");
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("[ERROR][" + typeof(Program) + "::" + MethodBase.GetCurrentMethod().Name + "]: Can't load the AuthServerConfig.json.");
-                return;
-            }
+            ConfigManager.Instance.RegisterSettings<AuthConfig>("AuthServerConfig.json");
+
+            LogManager.Instance.RegisterLogger(ConfigManager.Instance.GetSettings<AuthConfig>().Logging.LogsDir +
+                                               ConfigManager.Instance.GetSettings<AuthConfig>().Logging.LogFile);
+
+            LogManager.Instance.Log(LogManager.LogType.Info, "┌───────────────────────────────────────────────────────────────────────┐");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##      ##  #######  ##      ##  ######   #######  ########  ######## │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##  ##  ## ##     ## ##  ##  ## ##    ## ##     ## ##     ## ##       │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##  ##  ## ##     ## ##  ##  ## ##       ##     ## ##     ## ##       │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##  ##  ## ##     ## ##  ##  ## ##       ##     ## ########  ######   │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##  ##  ## ##     ## ##  ##  ## ##       ##     ## ##   ##   ##       │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##  ##  ## ##     ## ##  ##  ## ##    ## ##     ## ##    ##  ##       │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│  ###  ###   #######   ###  ###   ######   #######  ##     ## ######## │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "└───────────────────────────────────────────────────────────────────────┘");
+
+            return Task.CompletedTask;
         }
     }
 }
