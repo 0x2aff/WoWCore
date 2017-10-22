@@ -63,13 +63,14 @@ namespace WoWCore.Common.Logging
         /// Registers a new logger and creates/opens the logfile
         /// </summary>
         /// <param name="logFilePath">The path of the log file</param>
-        public void RegisterLogger(string logFilePath)
+        /// <param name="logFileName">The name of the log file</param>
+        public void RegisterLogger(string logFilePath, string logFileName)
         {
             if (_logFile == null)
             {
                 try
                 {
-                    _logFile = File.Open(logFilePath, FileMode.Append, FileAccess.Write);
+                    _logFile = File.Open(logFilePath + "[" + DateTime.Now.ToShortDateString() + "] " + logFileName, FileMode.Append, FileAccess.Write);
                     _streamWriter = new StreamWriter(_logFile) { AutoFlush = true };
                 }
                 catch (Exception e)
