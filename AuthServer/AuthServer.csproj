@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>WoWCore.AuthServer</AssemblyName>
     <RootNamespace>WoWCore.AuthServer</RootNamespace>
+    <StartupObject>WoWCore.AuthServer.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

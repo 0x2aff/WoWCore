@@ -41,18 +41,7 @@ namespace WoWCore.AuthServer
 
             ConfigManager.Instance.RegisterSettings<AuthConfig>("AuthServerConfig.json");
 
-            LogManager.Instance.RegisterLogger(ConfigManager.Instance.GetSettings<AuthConfig>().Logging.LogsDir,
-                                               ConfigManager.Instance.GetSettings<AuthConfig>().Logging.LogFile);
-
-            LogManager.Instance.Log(LogManager.LogType.Info, "┌───────────────────────────────────────────────────────────────────────┐");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##      ##  #######  ##      ##  ######   #######  ########  ######## │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##  ##  ## ##     ## ##  ##  ## ##    ## ##     ## ##     ## ##       │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##  ##  ## ##     ## ##  ##  ## ##       ##     ## ##     ## ##       │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##  ##  ## ##     ## ##  ##  ## ##       ##     ## ########  ######   │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##  ##  ## ##     ## ##  ##  ## ##       ##     ## ##   ##   ##       │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ ##  ##  ## ##     ## ##  ##  ## ##    ## ##     ## ##    ##  ##       │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│  ###  ###   #######   ###  ###   ######   #######  ##     ## ######## │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "└───────────────────────────────────────────────────────────────────────┘");
+            LogManager.Instance.Log(LogManager.LogType.Info, "Hello World!");
 
             return Task.CompletedTask;
         }
