@@ -49,6 +49,8 @@ namespace WoWCore.Common.Logging
 
         #endregion
 
+        private StreamWriter _streamWriter;
+
         /// <summary>
         /// LogType to decide the output text.
         /// </summary>
@@ -70,8 +72,6 @@ namespace WoWCore.Common.Logging
             Console.WriteLine(combinedMessage);
             _streamWriter.WriteLine(combinedMessage);
         }
-
-        private StreamWriter _streamWriter;
 
         private void Setup()
         {
