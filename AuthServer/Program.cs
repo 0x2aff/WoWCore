@@ -41,7 +41,16 @@ namespace WoWCore.AuthServer
 
             ConfigManager.Instance.RegisterSettings<AuthConfig>("AuthServerConfig.json");
 
-            LogManager.Instance.Log(LogManager.LogType.Info, "Hello World!");
+
+            LogManager.Instance.Log(LogManager.LogType.Info, "┌─────────────────────────────────────────────────────────────────┐");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ WoWCore - World of Warcraft 1.12.x Server                       │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ Copyright (C) 2017 exceptionptr                                 │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "├─────────────────────────────────────────────────────────────────┤");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ This program is distributed in the hope that it will be useful, │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ but WITHOUT ANY WARRANTY; without even the implied warranty of  │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "│ GNU General Public License for more details.                    │");
+            LogManager.Instance.Log(LogManager.LogType.Info, "└─────────────────────────────────────────────────────────────────┘");
 
             return Task.CompletedTask;
         }

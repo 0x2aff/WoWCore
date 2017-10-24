@@ -54,6 +54,7 @@ namespace WoWCore.Common.Logging
         public enum LogType
         {
             Info,
+            Success,
             Warning,
             Error
         }
@@ -66,7 +67,26 @@ namespace WoWCore.Common.Logging
         public void Log(LogType type, string message)
         {
             var combinedMessage = "[" + DateTime.Now + "][" + type + "] " + message;
+            switch (type)
+            {
+                case LogType.Info:
+                    break;
+                case LogType.Success:
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    break;
+                case LogType.Warning:
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    break;
+                case LogType.Error:
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+
             Console.WriteLine(combinedMessage);
+            Console.ForegroundColor = ConsoleColor.Gray;
+
             _streamWriter.WriteLine(combinedMessage);
         }
     }
