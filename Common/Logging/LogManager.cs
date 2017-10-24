@@ -22,34 +22,31 @@ using System.Reflection;
 
 namespace WoWCore.Common.Logging
 {
-    public sealed class LogManager
+    public sealed class LogManager : Singleton<LogManager>
     {
-        #region Singleton
-
-        private static volatile LogManager _instance;
-        private static readonly object SyncRoot = new object();
+        private readonly StreamWriter _streamWriter;
 
         private LogManager()
         {
-            Setup();
-        }
-
-        public static LogManager Instance
-        {
-            get
+            try
             {
-                if (_instance != null) return _instance;
-                lock (SyncRoot)
-                    if (_instance == null)
-                        _instance = new LogManager();
+                var fullPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/data/logs/";
 
-                return _instance;
+                if (!Directory.Exists(fullPath))
+                {
+                    Directory.CreateDirectory(fullPath);
+                }
+
+                var logFile = File.Open(fullPath + "[" + DateTime.Now.ToShortDateString() + "] " + Assembly.GetEntryAssembly().GetName().Name + ".log", FileMode.Append, FileAccess.Write);
+                _streamWriter = new StreamWriter(logFile) { AutoFlush = true };
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("[" + typeof(LogManager) + "::" + MethodBase.GetCurrentMethod().Name +
+                                  "]: Can't create/open log file.");
+                throw new Exception(e.Message);
             }
         }
-
-        #endregion
-
-        private StreamWriter _streamWriter;
 
         /// <summary>
         /// LogType to decide the output text.
@@ -71,28 +68,6 @@ namespace WoWCore.Common.Logging
             var combinedMessage = "[" + DateTime.Now + "][" + type + "] " + message;
             Console.WriteLine(combinedMessage);
             _streamWriter.WriteLine(combinedMessage);
-        }
-
-        private void Setup()
-        {
-            try
-            {
-                var fullPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/data/logs/";
-
-                if (!Directory.Exists(fullPath))
-                {
-                    Directory.CreateDirectory(fullPath);
-                }
-
-                var logFile = File.Open(fullPath + "[" + DateTime.Now.ToShortDateString() + "] " + Assembly.GetEntryAssembly().GetName().Name + ".log", FileMode.Append, FileAccess.Write);
-                _streamWriter = new StreamWriter(logFile) { AutoFlush = true };
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("[" + typeof(LogManager) + "::" + MethodBase.GetCurrentMethod().Name +
-                                  "]: Can't create/open log file.");
-                throw new Exception(e.Message);
-            }
         }
     }
 }

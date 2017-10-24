@@ -22,31 +22,11 @@ using System.IO;
 
 namespace WoWCore.Common.Config
 {
-    public sealed class ConfigManager
+    public sealed class ConfigManager : Singleton<ConfigManager>
     {
-        #region Singleton
-
-        private static volatile ConfigManager _instance;
-        private static readonly object SyncRoot = new object();
+        private IConfig _settings;
 
         private ConfigManager() { }
-
-        public static ConfigManager Instance
-        {
-            get
-            {
-                if (_instance != null) return _instance;
-                lock (SyncRoot)
-                    if (_instance == null)
-                        _instance = new ConfigManager();
-
-                return _instance;
-            }
-        }
-
-        #endregion
-
-        private IConfig _settings;
 
         /// <summary>
         /// Register a loaded config file to make it globally available.
