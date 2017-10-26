@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using WoWCore.AuthServer.Config;
 using WoWCore.Common.Config;
 using WoWCore.Common.Logging;
+using WoWCore.Common.Network;
 
 namespace WoWCore.AuthServer
 {
@@ -52,7 +53,25 @@ namespace WoWCore.AuthServer
             LogManager.Instance.Log(LogManager.LogType.Info, "│ GNU General Public License for more details.                    │");
             LogManager.Instance.Log(LogManager.LogType.Info, "└─────────────────────────────────────────────────────────────────┘");
 
+            var server = new AuthServer("127.0.0.1", 3724, null, null, MessageReceived);
+
+            while (true)
+            {
+                
+            }
+
             return Task.CompletedTask;
         }
+
+        private static bool MessageReceived(string ipPort, byte[] data)
+        {
+            return true;
+        }
+    }
+
+    public class AuthServer : Server
+    {
+        public AuthServer(string listenerIp, int listenerPort, Func<string, bool> clientConnected, Func<string, bool> clientDisconnected, 
+            Func<string, byte[], bool> messageReceived) : base(listenerIp, listenerPort, clientConnected, clientDisconnected, messageReceived) { }
     }
 }
