@@ -29,17 +29,17 @@ namespace WoWCore.Common.Network
     public abstract class Server : IDisposable
     {
         private string _listenerIp;
-        private TcpListener _listener;
+        private readonly TcpListener _listener;
 
-        private CancellationTokenSource _tokenSource;
+        private readonly CancellationTokenSource _tokenSource;
         private CancellationToken _token;
 
-        private Func<string, bool> _clientConnected;
-        private Func<string, bool> _clientDisconnected;
-        private Func<string, byte[], bool> _messageReceived;
+        private readonly Func<string, bool> _clientConnected;
+        private readonly Func<string, bool> _clientDisconnected;
+        private readonly Func<string, byte[], bool> _messageReceived;
 
         private int _activeClients;
-        private ConcurrentDictionary<string, Client> _clients;
+        private readonly ConcurrentDictionary<string, Client> _clients;
 
         /// <summary>
         /// Initialize the TCP server.
