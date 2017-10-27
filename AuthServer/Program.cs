@@ -34,9 +34,9 @@ namespace WoWCore.AuthServer
         /// Entrypoint of the authentication server.
         /// </summary>
         /// <param name="args"></param>
-        private static void Main(string[] args) => new Program().Run().GetAwaiter();
+        private static void Main(string[] args) => Run().GetAwaiter();
 
-        private Task Run()
+        private static Task Run()
         {
             Console.Title = "WoWCore Authentication Server";
 
@@ -59,8 +59,6 @@ namespace WoWCore.AuthServer
             {
                 
             }
-
-            return Task.CompletedTask;
         }
 
         private static bool ClientConnected(string ipPort)

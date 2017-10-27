@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
-using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -82,6 +81,20 @@ namespace WoWCore.Common.Network
             _clients = new ConcurrentDictionary<string, Client>();
 
             Task.Run(AcceptConnections, _token);
+        }
+
+        /// <summary>
+        /// Send data to the specified client, asynchronously.
+        /// </summary>
+        /// <param name="ipPort">IP:Port of the recipient client.</param>
+        /// <param name="data">Byte array containing data.</param>
+        /// <returns>Task with Boolean indicating if the message was sent successfully.</returns>
+        public async Task<bool> SendAsync(string ipPort, byte[] data)
+        {
+            if (_clients.TryGetValue(ipPort, out var client)) return await MessageWriteAsync(client, data);
+
+            LogManager.Instance.Log(LogManager.LogType.Error, "Unable to send message to client (" + ipPort + ").");
+            return false;
         }
 
         public void Dispose()
@@ -185,7 +198,14 @@ namespace WoWCore.Common.Network
 
         private async Task<bool> MessageWriteAsync(Client client, byte[] data)
         {
-            throw new NotImplementedException();
+            if (data == null || data.Length < 1)
+                return false;
+
+            var clientStream = client.TcpClient.GetStream();
+            await clientStream.WriteAsync(data, 0, data.Length, _token);
+            await clientStream.FlushAsync(_token);
+
+            return true;
         }
 
         private static bool IsConnected(Client client)
