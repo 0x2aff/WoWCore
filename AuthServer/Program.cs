@@ -53,7 +53,7 @@ namespace WoWCore.AuthServer
             LogManager.Instance.Log(LogManager.LogType.Info, "│ GNU General Public License for more details.                    │");
             LogManager.Instance.Log(LogManager.LogType.Info, "└─────────────────────────────────────────────────────────────────┘");
 
-            var server = new AuthServer("127.0.0.1", 3724, null, null, MessageReceived);
+            var server = new AuthServer("127.0.0.1", 3724, ClientConnected, ClientDisconnected, MessageReceived);
 
             while (true)
             {
@@ -63,8 +63,21 @@ namespace WoWCore.AuthServer
             return Task.CompletedTask;
         }
 
+        private static bool ClientConnected(string ipPort)
+        {
+            LogManager.Instance.Log(LogManager.LogType.Success, "Client " + ipPort + " connected");
+            return true;
+        }
+
+        private static bool ClientDisconnected(string ipPort)
+        {
+            LogManager.Instance.Log(LogManager.LogType.Error, "Client " + ipPort + " disconnected");
+            return true;
+        }
+
         private static bool MessageReceived(string ipPort, byte[] data)
         {
+            LogManager.Instance.Log(LogManager.LogType.Error, "Message received from " + ipPort + ".");
             return true;
         }
     }

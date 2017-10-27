@@ -37,7 +37,7 @@ namespace WoWCore.Common.Network
             Ip = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address.ToString();
             Port = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Port;
 
-            TcpCLient = tcpClient;
+            TcpClient = tcpClient;
         }
     }
 }

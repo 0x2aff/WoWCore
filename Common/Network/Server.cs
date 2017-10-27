@@ -18,6 +18,8 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.IO;
+using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -111,7 +113,7 @@ namespace WoWCore.Common.Network
                     var dataReceiverToken = default(CancellationToken);
 
                     if (_clientConnected != null)
-                        Task.Run(() => _clientConnected(currentClient.Ip + ":" + currentClient.Port), new CancellationToken());
+                        Task.Run(() => _clientConnected(currentClient.Ip + ":" + currentClient.Port), _token);
 
                     Task.Run(async () => await DataReceiver(currentClient, dataReceiverToken), dataReceiverToken);
                 }, _token);
@@ -133,12 +135,12 @@ namespace WoWCore.Common.Network
                         var data = await MessageReadAsync(client);
                         if (data == null)
                         {
-                            await Task.Delay(30, new CancellationToken());
+                            await Task.Delay(30, _token);
                             continue;
                         }
 
-                        if (_messageReceived != null)
-                            await Task.Run(() => _messageReceived(client.Ip + ":" + client.Port, data), new CancellationToken());
+                        if (_messageReceived != null) { }
+                            await Task.Run(() => _messageReceived(client.Ip + ":" + client.Port, data), _token);
                     }
                     catch (Exception)
                     {
@@ -154,13 +156,28 @@ namespace WoWCore.Common.Network
                         "Can't remove client (" + client.Ip + ":" + client.Port + ").");
 
                 if (_clientDisconnected != null)
-                    await Task.Run(() => _clientDisconnected(client.Ip + ":" + client.Port), new CancellationToken());
+                    await Task.Run(() => _clientDisconnected(client.Ip + ":" + client.Port), _token);
             }
         }
 
         private async Task<byte[]> MessageReadAsync(Client client)
         {
-            throw new NotImplementedException();
+            var clientStream = client.TcpClient.GetStream();
+
+            if (!clientStream.CanRead || !clientStream.DataAvailable) return null;
+
+            var buffer = new byte[1024];
+
+            using (var memoryStream = new MemoryStream())
+            {
+                int bytesRead;
+                while ((bytesRead = await clientStream.ReadAsync(buffer, 0, buffer.Length, _token)) > 0)
+                {
+                    await memoryStream.WriteAsync(buffer, 0, bytesRead, _token);
+                }
+
+                return memoryStream.ToArray();
+            }
         }
 
         private async Task<bool> MessageWriteAsync(Client client, byte[] data)
