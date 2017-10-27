@@ -166,15 +166,18 @@ namespace WoWCore.Common.Network
 
             if (!clientStream.CanRead || !clientStream.DataAvailable) return null;
 
-            var buffer = new byte[1024];
-
+            var readBuffer = new byte[client.TcpClient.ReceiveBufferSize];
             using (var memoryStream = new MemoryStream())
             {
-                int bytesRead;
-                while ((bytesRead = await clientStream.ReadAsync(buffer, 0, buffer.Length, _token)) > 0)
+                do
                 {
-                    await memoryStream.WriteAsync(buffer, 0, bytesRead, _token);
+                    var numBytesRead = await clientStream.ReadAsync(readBuffer, 0, readBuffer.Length, _token);
+                    if (numBytesRead <= 0)
+                        break;
+
+                    await memoryStream.WriteAsync(readBuffer, 0, numBytesRead, _token);
                 }
+                while (clientStream.DataAvailable);
 
                 return memoryStream.ToArray();
             }

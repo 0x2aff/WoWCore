@@ -77,7 +77,7 @@ namespace WoWCore.AuthServer
 
         private static bool MessageReceived(string ipPort, byte[] data)
         {
-            LogManager.Instance.Log(LogManager.LogType.Error, "Message received from " + ipPort + ".");
+            LogManager.Instance.Log(LogManager.LogType.Error, "Message received from " + ipPort + " (" + data.Length + ").");
             return true;
         }
     }
