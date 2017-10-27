@@ -19,9 +19,9 @@
 using System;
 using System.Threading.Tasks;
 using WoWCore.AuthServer.Config;
+using WoWCore.AuthServer.Handler;
 using WoWCore.Common.Config;
 using WoWCore.Common.Logging;
-using WoWCore.Common.Network;
 
 namespace WoWCore.AuthServer
 {
@@ -63,26 +63,22 @@ namespace WoWCore.AuthServer
 
         private static bool ClientConnected(string ipPort)
         {
-            LogManager.Instance.Log(LogManager.LogType.Success, "Client " + ipPort + " connected");
+            LogManager.Instance.Log(LogManager.LogType.Info, "Client " + ipPort + " connected");
             return true;
         }
 
         private static bool ClientDisconnected(string ipPort)
         {
-            LogManager.Instance.Log(LogManager.LogType.Error, "Client " + ipPort + " disconnected");
+            LogManager.Instance.Log(LogManager.LogType.Info, "Client " + ipPort + " disconnected");
             return true;
         }
 
         private static bool MessageReceived(string ipPort, byte[] data)
         {
-            LogManager.Instance.Log(LogManager.LogType.Error, "Message received from " + ipPort + " (" + data.Length + ").");
+            LogManager.Instance.Log(LogManager.LogType.Info, "Message received from " + ipPort + " (" + data.Length + ").");
+            var logonChallenge = new AuthLogonChallenge(data);
+
             return true;
         }
-    }
-
-    public class AuthServer : Server
-    {
-        public AuthServer(string listenerIp, int listenerPort, Func<string, bool> clientConnected, Func<string, bool> clientDisconnected, 
-            Func<string, byte[], bool> messageReceived) : base(listenerIp, listenerPort, clientConnected, clientDisconnected, messageReceived) { }
     }
 }
