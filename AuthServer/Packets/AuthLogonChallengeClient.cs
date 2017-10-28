@@ -16,10 +16,26 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using WoWCore.AuthServer.Opcodes;
+
 namespace WoWCore.AuthServer.Packets
 {
     public class AuthLogonChallengeClient
     {
-        
+        public AuthCmd Command;
+        public AuthResult Error;
+        public ushort Size;
+        public string GameName;
+        public byte Version1;
+        public byte Version2;
+        public byte Version3;
+        public ushort Build;
+        public string Platform;
+        public string OperatingSystem;
+        public string Country;
+        public uint TimezoneBias;
+        public uint Ip;
+        public byte IdentifierLength;
+        public string Identifier;
     }
 }

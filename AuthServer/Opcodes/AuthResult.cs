@@ -27,7 +27,7 @@ namespace WoWCore.AuthServer.Opcodes
         UnknownAccount = 0x04,
         IncorrectPassword = 0x05,
         AlreadyOnline = 0x06,
-        NoTime = 0x07,
+        NoTime = 0x07,  
         DatabaseBusy = 0x08,
         VersionInvalid = 0x09,
         VersionUpdate = 0x0A,
