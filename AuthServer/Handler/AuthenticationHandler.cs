@@ -16,11 +16,9 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace WoWCore.AuthServer.Config
+namespace WoWCore.AuthServer.Handler
 {
-    public class LoggingConfig
+    public class AuthenticationHandler
     {
-        public string LogsDir { get; set; }
-        public string LogFile { get; set; }
     }
 }

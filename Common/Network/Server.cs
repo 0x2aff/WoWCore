@@ -27,7 +27,7 @@ using WoWCore.Common.Logging;
 
 namespace WoWCore.Common.Network
 {
-    public abstract class Server : IDisposable
+    public sealed class Server : IDisposable
     {
         private string _listenerIp;
         private readonly TcpListener _listener;
@@ -50,7 +50,7 @@ namespace WoWCore.Common.Network
         /// <param name="clientConnected">Function to be called when a client connects.</param>
         /// <param name="clientDisconnected">Function to be called when a client disconnects.</param>
         /// <param name="messageReceived">Function to be called when a message is received.</param>
-        protected Server(string listenerIp, int listenerPort, Func<string, bool> clientConnected, Func<string, bool> clientDisconnected, 
+        public Server(string listenerIp, int listenerPort, Func<string, bool> clientConnected, Func<string, bool> clientDisconnected, 
             Func<string, byte[], bool> messageReceived)
         {
             IPAddress listenerIpAddress;

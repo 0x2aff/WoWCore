@@ -19,7 +19,6 @@
 using System;
 using System.Threading.Tasks;
 using WoWCore.AuthServer.Config;
-using WoWCore.AuthServer.Handler;
 using WoWCore.Common.Config;
 using WoWCore.Common.Logging;
 
@@ -34,9 +33,9 @@ namespace WoWCore.AuthServer
         /// Entrypoint of the authentication server.
         /// </summary>
         /// <param name="args"></param>
-        private static void Main(string[] args) => Run().GetAwaiter();
+        private static void Main(string[] args) => Initialize();
 
-        private static Task Run()
+        private static void Initialize()
         {
             Console.Title = "WoWCore Authentication Server";
 
@@ -53,32 +52,7 @@ namespace WoWCore.AuthServer
             LogManager.Instance.Log(LogManager.LogType.Info, "│ GNU General Public License for more details.                    │");
             LogManager.Instance.Log(LogManager.LogType.Info, "└─────────────────────────────────────────────────────────────────┘");
 
-            var server = new AuthServer("127.0.0.1", 3724, ClientConnected, ClientDisconnected, MessageReceived);
-
-            while (true)
-            {
-                
-            }
-        }
-
-        private static bool ClientConnected(string ipPort)
-        {
-            LogManager.Instance.Log(LogManager.LogType.Info, "Client " + ipPort + " connected");
-            return true;
-        }
-
-        private static bool ClientDisconnected(string ipPort)
-        {
-            LogManager.Instance.Log(LogManager.LogType.Info, "Client " + ipPort + " disconnected");
-            return true;
-        }
-
-        private static bool MessageReceived(string ipPort, byte[] data)
-        {
-            LogManager.Instance.Log(LogManager.LogType.Info, "Message received from " + ipPort + " (" + data.Length + ").");
-            var logonChallenge = new AuthLogonChallenge(data);
-
-            return true;
+            AuthServer.Instance.Start();
         }
     }
 }

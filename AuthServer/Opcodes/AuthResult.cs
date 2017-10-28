@@ -16,13 +16,28 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.IO;
-using System.Text;
-
-namespace WoWCore.Common.Network
+namespace WoWCore.AuthServer.Opcodes
 {
-    public class PacketReader : BinaryReader
+    public enum AuthResult : byte
     {
-        public PacketReader(byte[] data) : base(new MemoryStream(data), Encoding.UTF8) { }
+        Success = 0x00,
+        Unknown0 = 0x01,
+        Unknown1 = 0x02,
+        Banned = 0x03,
+        UnknownAccount = 0x04,
+        IncorrectPassword = 0x05,
+        AlreadyOnline = 0x06,
+        NoTime = 0x07,
+        DatabaseBusy = 0x08,
+        VersionInvalid = 0x09,
+        VersionUpdate = 0x0A,
+        InvalidServer = 0x0B,
+        Suspended = 0x0C,
+        NoAccess = 0x0D,
+        SuccessSurvey = 0x0E,
+        ParentControl = 0x0F,
+        LockedEnforced = 0x10,
+        TrialEnded = 0x11,
+        UseBattleNet = 0x12
     }
 }

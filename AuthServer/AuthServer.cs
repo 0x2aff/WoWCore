@@ -17,17 +17,58 @@
  */
 
 using System;
+using System.Threading.Tasks;
+using WoWCore.AuthServer.Config;
+using WoWCore.Common;
+using WoWCore.Common.Config;
+using WoWCore.Common.Logging;
 using WoWCore.Common.Network;
 
 namespace WoWCore.AuthServer
 {
-    public class AuthServer : Server
+    public class AuthServer : Singleton<AuthServer>
     {
-        public AuthServer(string listenerIp, int listenerPort, Func<string, bool> clientConnected,
-            Func<string, bool> clientDisconnected, Func<string, byte[], bool> messageReceived) : base(listenerIp,
-            listenerPort, clientConnected, clientDisconnected, messageReceived)
+        private readonly Server _server;
+
+        private readonly string _listenerIp;
+        private readonly int _listenerPort;
+
+        public bool Running { get; private set; } = true;
+
+        private AuthServer()
         {
-            
+            _listenerIp = ConfigManager.Instance.GetSettings<AuthConfig>().Connection.ServerIp;
+            _listenerPort = ConfigManager.Instance.GetSettings<AuthConfig>().Connection.ServerPort;
+
+            _server = new Server(_listenerIp, _listenerPort, null, null, MessageReceived);
+
+            LogManager.Instance.Log(LogManager.LogType.Info, "Listening on " + _listenerIp + ":" + _listenerPort + ".");
+        }
+
+        public Task Start()
+        {
+            while (Running)
+            {
+                var userInput = Console.ReadLine();
+                if (string.IsNullOrEmpty(userInput)) continue;
+
+                switch (userInput)
+                {
+                    case "quit":
+                        LogManager.Instance.Log(LogManager.LogType.Info, "Stopping the authentication server.");
+                        Running = false;
+                        break;
+                }
+            }
+
+            _server.Dispose();
+
+            return Task.CompletedTask;
+        }
+
+        private static bool MessageReceived(string ipPort, byte[] data)
+        {
+            return true;
         }
     }
 }

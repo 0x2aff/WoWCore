@@ -16,12 +16,10 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using WoWCore.Common.Config;
-
-namespace WoWCore.AuthServer.Config
+namespace WoWCore.AuthServer.Packets
 {
-    public class AuthConfig : IConfig
+    public class AuthLogonChallengeClient
     {
-        public ConnectionConfig Connection { get; set; }
+        
     }
 }
