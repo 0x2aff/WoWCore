@@ -17,10 +17,13 @@
  */
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using WoWCore.AuthServer.Config;
+using WoWCore.AuthServer.Packets;
 using WoWCore.Common;
 using WoWCore.Common.Config;
+using WoWCore.Common.Helper;
 using WoWCore.Common.Logging;
 using WoWCore.Common.Network;
 

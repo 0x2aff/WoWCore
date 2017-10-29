@@ -16,21 +16,22 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using WoWCore.AuthServer.Opcodes;
+using System.Collections.Generic;
+using System.IO;
 
-namespace WoWCore.AuthServer.Packets
+namespace WoWCore.Common.Extensions
 {
-    public class AuthLogonChallengeServer
+    public static class CStringReader
     {
-        public AuthCmd Command;
-        public byte Unknown1;
-        public AuthResult Error;
-        public byte[] SrpB;
-        public byte SrpGLength;
-        public byte SrpG;
-        public byte SrpNLength;
-        public byte SrpN;
-        public byte[] SrpSalt;
-        public byte[] Unknown2;
+        public static string ReadCSTring(this BinaryReader binaryReader)
+        {
+            var chars = new List<char>();
+            char c;
+
+            while ((c = binaryReader.ReadChar()) != '\0')
+                chars.Add(c);
+
+            return new string(chars.ToArray());
+        }
     }
 }

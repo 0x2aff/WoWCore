@@ -16,21 +16,18 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-using WoWCore.AuthServer.Opcodes;
+using System;
 
-namespace WoWCore.AuthServer.Packets
+namespace WoWCore.Common.Logging.Attributes
 {
-    public class AuthLogonChallengeServer
+    [AttributeUsage(AttributeTargets.Field)]
+    public class PacketArrayLengthAttribute : Attribute
     {
-        public AuthCmd Command;
-        public byte Unknown1;
-        public AuthResult Error;
-        public byte[] SrpB;
-        public byte SrpGLength;
-        public byte SrpG;
-        public byte SrpNLength;
-        public byte SrpN;
-        public byte[] SrpSalt;
-        public byte[] Unknown2;
+        public int Length { get; }
+
+        public PacketArrayLengthAttribute(int length)
+        {
+            Length = length;
+        }
     }
 }
