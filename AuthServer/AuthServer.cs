@@ -70,12 +70,6 @@ namespace WoWCore.AuthServer
 
         private static bool MessageReceived(string ipPort, byte[] data)
         {
-            if (data[0] == (byte) AuthCmd.LogonChallenge)
-            {
-                var alcClient = new AuthLogonChallengeClient(data);
-                Console.WriteLine("AuthLogonChallengeClient Incomming");
-            }
-
             return true;
         }
     }

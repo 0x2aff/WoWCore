@@ -16,6 +16,7 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.IO;
 using WoWCore.AuthServer.Opcodes;
 
 namespace WoWCore.AuthServer.Packets
@@ -23,6 +24,7 @@ namespace WoWCore.AuthServer.Packets
     public class AuthLogonChallengeServer
     {
         public AuthCmd Command;
+        public byte Unknown1;
         public AuthResult Error;
         public byte[] SrpB;
         public byte SrpGLength;
@@ -30,6 +32,6 @@ namespace WoWCore.AuthServer.Packets
         public byte SrpNLength;
         public byte SrpN;
         public byte[] SrpSalt;
-
+        public byte[] Unknown2;
     }
 }
