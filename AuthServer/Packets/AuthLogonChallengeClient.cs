@@ -16,6 +16,9 @@
  *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System;
+using System.Linq;
+using System.Text;
 using WoWCore.AuthServer.Opcodes;
 
 namespace WoWCore.AuthServer.Packets
@@ -34,8 +37,27 @@ namespace WoWCore.AuthServer.Packets
         public string OperatingSystem;
         public string Country;
         public uint TimezoneBias;
-        public uint Ip;
+        public string Ip;
         public byte IdentifierLength;
         public string Identifier;
+
+        public AuthLogonChallengeClient(byte[] data)
+        {
+            Command = (AuthCmd) data[0];
+            Error = (AuthResult) data[1];
+            Size = BitConverter.ToUInt16(data, 2);
+            GameName = new string(Encoding.ASCII.GetString(data, 4, 3).Reverse().ToArray());
+            Version1 = data[8];
+            Version2 = data[9];
+            Version3 = data[10];
+            Build = BitConverter.ToUInt16(data, 11);
+            Platform = new string(Encoding.ASCII.GetString(data, 13, 3).Reverse().ToArray());
+            OperatingSystem = new string(Encoding.ASCII.GetString(data, 17, 3).Reverse().ToArray());
+            Country = new string(Encoding.ASCII.GetString(data, 21, 4).Reverse().ToArray());
+            TimezoneBias = BitConverter.ToUInt32(data, 25);
+            Ip = data[29] + "." + data[30] + "." + data[31] + "." + data[32];
+            IdentifierLength = data[33];
+            Identifier = Encoding.ASCII.GetString(data, 34, IdentifierLength);
+        }
     }
 }

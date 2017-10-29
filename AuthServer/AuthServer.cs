@@ -19,6 +19,8 @@
 using System;
 using System.Threading.Tasks;
 using WoWCore.AuthServer.Config;
+using WoWCore.AuthServer.Opcodes;
+using WoWCore.AuthServer.Packets;
 using WoWCore.Common;
 using WoWCore.Common.Config;
 using WoWCore.Common.Logging;
@@ -68,6 +70,12 @@ namespace WoWCore.AuthServer
 
         private static bool MessageReceived(string ipPort, byte[] data)
         {
+            if (data[0] == (byte) AuthCmd.LogonChallenge)
+            {
+                var alcClient = new AuthLogonChallengeClient(data);
+                Console.WriteLine("AuthLogonChallengeClient Incomming");
+            }
+
             return true;
         }
     }
