@@ -19,8 +19,6 @@
 using System;
 using System.Threading.Tasks;
 using WoWCore.AuthServer.Config;
-using WoWCore.AuthServer.Opcodes;
-using WoWCore.AuthServer.Packets;
 using WoWCore.Common;
 using WoWCore.Common.Config;
 using WoWCore.Common.Logging;
