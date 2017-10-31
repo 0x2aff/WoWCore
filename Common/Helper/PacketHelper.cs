@@ -68,6 +68,8 @@ namespace WoWCore.Common.Helper
         private static void BuildField(BinaryWriter binaryWriter, Type fieldType, object value,
             IEnumerable<Attribute> attributes)
         {
+            if (value == null) return;
+
             if (fieldType.IsArray)
                 BuildArray(binaryWriter, (Array) value, attributes);
             else if (fieldType.IsPrimitive || fieldType == typeof(string))
