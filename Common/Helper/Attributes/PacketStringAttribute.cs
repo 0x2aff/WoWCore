@@ -18,7 +18,7 @@
 
 using System;
 
-namespace WoWCore.Common.Logging.Attributes
+namespace WoWCore.Common.Helper.Attributes
 {
     public enum StringType
     {

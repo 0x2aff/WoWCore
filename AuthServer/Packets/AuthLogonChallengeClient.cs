@@ -17,7 +17,7 @@
  */
 
 using WoWCore.AuthServer.Opcodes;
-using WoWCore.Common.Logging.Attributes;
+using WoWCore.Common.Helper.Attributes;
 
 namespace WoWCore.AuthServer.Packets
 {

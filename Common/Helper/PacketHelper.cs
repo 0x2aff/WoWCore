@@ -22,7 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using WoWCore.Common.Extensions;
-using WoWCore.Common.Logging.Attributes;
+using WoWCore.Common.Helper.Attributes;
 
 namespace WoWCore.Common.Helper
 {
