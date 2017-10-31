@@ -37,7 +37,7 @@ namespace WoWCore.Common.Logging
                     Directory.CreateDirectory(fullPath);
                 }
 
-                var logFile = File.Open(fullPath + "[" + DateTime.Now.ToShortDateString() + "] " + Assembly.GetEntryAssembly().GetName().Name + ".log", FileMode.Append, FileAccess.Write);
+                var logFile = File.Open(fullPath + "[" + DateTime.Now.ToString("dd.MM.yy") + "] " + Assembly.GetEntryAssembly().GetName().Name + ".log", FileMode.Append, FileAccess.Write);
                 _streamWriter = new StreamWriter(logFile) { AutoFlush = true };
             }
             catch (Exception e)
