@@ -17,7 +17,6 @@
  */
 
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using WoWCore.AuthServer.Config;
 using WoWCore.AuthServer.Packets;
@@ -71,6 +70,7 @@ namespace WoWCore.AuthServer
 
         private static bool MessageReceived(string ipPort, byte[] data)
         {
+            var authLogonChallengeClient = PacketHelper.Parse<AuthLogonChallengeClient>(data);
             return true;
         }
     }

@@ -27,7 +27,7 @@ namespace WoWCore.AuthServer.Packets
         public AuthResult Error;
         public ushort Size;
 
-        [PacketString(StringType.CString)]
+        [PacketString(StringType.CString), PacketArrayReverse]
         public string GameName;
 
         public byte Version1;
@@ -35,13 +35,13 @@ namespace WoWCore.AuthServer.Packets
         public byte Version3;
         public ushort Build;
 
-        [PacketString(StringType.CString)]
+        [PacketString(StringType.CString), PacketArrayReverse]
         public string Platform;
 
-        [PacketString(StringType.CString)]
+        [PacketString(StringType.CString), PacketArrayReverse]
         public string OperatingSystem;
 
-        [PacketString(StringType.FixedLength), PacketArrayLength(4)]
+        [PacketString(StringType.FixedLength), PacketArrayLength(4), PacketArrayReverse]
         public string Country;
 
         public uint TimezoneBias;

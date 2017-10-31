@@ -28,9 +28,15 @@ namespace WoWCore.Common.Helper
 {
     public static class PacketHelper
     {
-        public static T Parse<T>(BinaryReader binaryReader) where T : class, new()
+        /// <summary>
+        /// Parse the client packet.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static T Parse<T>(byte[] data) where T : class, new()
         {
-            return (T) Parse(binaryReader, typeof(T));
+            return (T) Parse(new BinaryReader(new MemoryStream(data)), typeof(T));
         }
 
         private static object Parse(BinaryReader binaryReader, Type type)
@@ -114,23 +120,29 @@ namespace WoWCore.Common.Helper
                     var stringAttribute = attributeArray.OfType<PacketStringAttribute>().FirstOrDefault();
                     if (stringAttribute == null)
                         throw new Exception("[" + typeof(PacketHelper) + "::" + MethodBase.GetCurrentMethod().Name +
-                                            "]: String is missing the StringType attribute.");
+                                            "]: String is missing the PacketString attribute.");
+
+                    var reverseArrayAttribute = attributeArray.OfType<PacketArrayReverseAttribute>().FirstOrDefault();
 
                     switch (stringAttribute.StringType)
                     {
                         case StringType.CString:
-                            return binaryReader.ReadCSTring();
+                            return reverseArrayAttribute != null
+                                ? new string(binaryReader.ReadCSTring().Reverse().ToArray())
+                                : binaryReader.ReadCSTring();
                         case StringType.PrefixedLength:
-                            var length = binaryReader.ReadByte();
-                            Console.WriteLine(length);
-                            return new string(binaryReader.ReadChars(length));
+                            return reverseArrayAttribute != null
+                                ? new string(binaryReader.ReadChars(binaryReader.ReadByte()).Reverse().ToArray())
+                                : new string(binaryReader.ReadChars(binaryReader.ReadByte()));
                         case StringType.FixedLength:
                             var arrayAttributes = attributeArray.OfType<PacketArrayLengthAttribute>().FirstOrDefault();
                             if (arrayAttributes == null)
                                 throw new Exception("[" + typeof(PacketHelper) + "::" + MethodBase.GetCurrentMethod().Name +
-                                                    "]: String is missing the ArrayLength attribute.");
+                                                    "]: String is missing the PacketArrayLength attribute.");
 
-                            return new string(binaryReader.ReadChars(arrayAttributes.Length));
+                            return reverseArrayAttribute != null
+                                ? new string(binaryReader.ReadChars(arrayAttributes.Length).Reverse().ToArray())
+                                : new string(binaryReader.ReadChars(arrayAttributes.Length));
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
@@ -140,6 +152,12 @@ namespace WoWCore.Common.Helper
                     return isBigEndian ? BitConverter.ToUInt32(binaryReader.ReadBytes(4), 0) : binaryReader.ReadUInt32();
                 case TypeCode.UInt64:
                     return isBigEndian ? BitConverter.ToUInt32(binaryReader.ReadBytes(8), 0) : binaryReader.ReadUInt64();
+                case TypeCode.DateTime:
+                case TypeCode.DBNull:
+                case TypeCode.Empty:
+                case TypeCode.Object:
+                    throw new Exception("[" + typeof(PacketHelper) + "::" + MethodBase.GetCurrentMethod().Name +
+                                        "]: Can't parse unsupported field.");
                 default:
                     throw new ArgumentOutOfRangeException(nameof(typeCode), typeCode, null);
             }
