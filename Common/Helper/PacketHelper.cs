@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using WoWCore.Common.Extensions;
 using WoWCore.Common.Helper.Attributes;
 
@@ -37,6 +38,147 @@ namespace WoWCore.Common.Helper
         public static T Parse<T>(byte[] data) where T : class, new()
         {
             return (T) Parse(new BinaryReader(new MemoryStream(data)), typeof(T));
+        }
+
+        /// <summary>
+        /// Build the client packet.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance"></param>
+        /// <returns></returns>
+        public static byte[] Build<T>(T instance) where T : class, new()
+        {
+            using (var memoryStream = new MemoryStream())
+            using (var binaryWriter = new BinaryWriter(memoryStream))
+            {
+                Build(binaryWriter, typeof(T), instance);
+                return memoryStream.ToArray();
+            }
+        }
+
+        private static void Build(BinaryWriter binaryWriter, Type type, object instance)
+        {
+            foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                .OrderBy(field => field.MetadataToken))
+            {
+                BuildField(binaryWriter, field.FieldType, field.GetValue(instance), field.GetCustomAttributes());
+            }
+        }
+
+        private static void BuildField(BinaryWriter binaryWriter, Type fieldType, object value,
+            IEnumerable<Attribute> attributes)
+        {
+            if (fieldType.IsArray)
+                BuildArray(binaryWriter, (Array) value, attributes);
+            else if (fieldType.IsPrimitive || fieldType == typeof(string))
+                BuildPrimitive(binaryWriter, Type.GetTypeCode(fieldType), value, attributes);
+            else if (fieldType.IsEnum)
+                BuildPrimitive(binaryWriter, Type.GetTypeCode(fieldType.GetEnumUnderlyingType()), value, attributes);
+            else if (fieldType.IsClass && !fieldType.IsArray && fieldType != typeof(string))
+                Build(binaryWriter, fieldType, value);
+            else throw new Exception("[" + typeof(PacketHelper) + "::" + MethodBase.GetCurrentMethod().Name +
+                                "]: Can't build / determine field.");
+        }
+
+        private static void BuildArray(BinaryWriter binaryWriter, Array array, IEnumerable<Attribute> attributes)
+        {
+            var elementType = array.GetType().GetElementType();
+            foreach (var element in array)
+            {
+                BuildField(binaryWriter, elementType, element, attributes);
+            }
+        }
+
+        private static void BuildPrimitive(BinaryWriter binaryWriter, TypeCode typeCode, object value,
+            IEnumerable<Attribute> attributes)
+        {
+            switch (typeCode)
+            {
+                case TypeCode.Boolean:
+                    binaryWriter.Write((bool)value);
+                    break;
+                case TypeCode.Byte:
+                    binaryWriter.Write((byte)value);
+                    break;
+                case TypeCode.Char:
+                    binaryWriter.Write((char)value);
+                    break;
+                case TypeCode.Double:
+                    binaryWriter.Write((double)value);
+                    break;
+                case TypeCode.Empty:
+                    break;
+                case TypeCode.Int16:
+                    binaryWriter.Write((short)value);
+                    break;
+                case TypeCode.Int32:
+                    binaryWriter.Write((int)value);
+                    break;
+                case TypeCode.Int64:
+                    binaryWriter.Write((long)value);
+                    break;
+                case TypeCode.Object:
+                    break;
+                case TypeCode.SByte:
+                    binaryWriter.Write((sbyte)value);
+                    break;
+                case TypeCode.Single:
+                    binaryWriter.Write((float)value);
+                    break;
+                case TypeCode.String:
+                    var attributeArray = attributes as Attribute[] ?? attributes.ToArray();
+                    var stringAttributes = attributeArray.OfType<PacketStringAttribute>().FirstOrDefault();
+
+                    if (stringAttributes == null)
+                        throw new Exception("[" + typeof(PacketHelper) + "::" + MethodBase.GetCurrentMethod().Name +
+                                            "]: String is missing the PacketString attribute.");
+
+                    var reverseArrayAttribute = attributeArray.OfType<PacketArrayReverseAttribute>().FirstOrDefault();
+
+                    switch (stringAttributes.StringType)
+                    {
+                        case StringType.CString:
+                            binaryWriter.Write(reverseArrayAttribute != null
+                                ? Encoding.ASCII.GetBytes(new string(((string) value).Reverse().ToArray()) + '\0')
+                                : Encoding.ASCII.GetBytes((string) value + '\0'));
+                            break;
+                        case StringType.PrefixedLength:
+                            binaryWriter.Write((byte)((string)value).Length);
+
+                            binaryWriter.Write(reverseArrayAttribute != null
+                                ? Encoding.ASCII.GetBytes(new string(((string) value).Reverse().ToArray()))
+                                : Encoding.ASCII.GetBytes((string) value));
+                            break;
+                        case StringType.FixedLength:
+                            var arrayAttributes = attributeArray.OfType<PacketArrayLengthAttribute>().FirstOrDefault();
+                            if (arrayAttributes == null)
+                                throw new Exception("[" + typeof(PacketHelper) + "::" + MethodBase.GetCurrentMethod().Name +
+                                                    "]: String is missing the PacketArrayLength attribute.");
+
+                            binaryWriter.Write(reverseArrayAttribute != null
+                                ? Encoding.ASCII.GetBytes(new string(((string) value).Reverse().ToArray()))
+                                    .Fill(arrayAttributes.Length)
+                                : Encoding.ASCII.GetBytes((string) value).Fill(arrayAttributes.Length));
+                            break;
+                    }
+                    break;
+                case TypeCode.UInt16:
+                    binaryWriter.Write((ushort)value);
+                    break;
+                case TypeCode.UInt32:
+                    binaryWriter.Write((uint)value);
+                    break;
+                case TypeCode.UInt64:
+                    binaryWriter.Write((ulong)value);
+                    break;
+                case TypeCode.DateTime:
+                case TypeCode.DBNull:
+                case TypeCode.Decimal:
+                    throw new Exception("[" + typeof(PacketHelper) + "::" + MethodBase.GetCurrentMethod().Name +
+                                        "]: Can't build unsupported field.");
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(typeCode), typeCode, null);
+            }
         }
 
         private static object Parse(BinaryReader binaryReader, Type type)
