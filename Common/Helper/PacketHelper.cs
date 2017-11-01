@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -56,7 +57,7 @@ namespace WoWCore.Common.Helper
             }
         }
 
-        private static void Build(BinaryWriter binaryWriter, Type type, object instance)
+        private static void Build(BinaryWriter binaryWriter, IReflect type, object instance)
         {
             foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 .OrderBy(field => field.MetadataToken))
@@ -82,12 +83,13 @@ namespace WoWCore.Common.Helper
                                 "]: Can't build / determine field.");
         }
 
-        private static void BuildArray(BinaryWriter binaryWriter, Array array, IEnumerable<Attribute> attributes)
+        private static void BuildArray(BinaryWriter binaryWriter, IEnumerable array, IEnumerable<Attribute> attributes)
         {
+            var attributeArray = attributes as Attribute[] ?? attributes.ToArray();
             var elementType = array.GetType().GetElementType();
             foreach (var element in array)
             {
-                BuildField(binaryWriter, elementType, element, attributes);
+                BuildField(binaryWriter, elementType, element, attributeArray);
             }
         }
 
