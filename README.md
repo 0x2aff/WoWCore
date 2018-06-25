@@ -10,4 +10,4 @@ It is completely open source. Community involvement is highly encouraged.
 
 License
 -------
-GPL 3.0 - Read the [LICENSE](LICENSE) file.
+MIT - Read the [LICENSE](LICENSE) file.
