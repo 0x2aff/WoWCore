@@ -22,7 +22,6 @@
  */
 
 using System;
-using System.Threading.Tasks;
 using WoWCore.AuthServer.Config;
 using WoWCore.Common.Config;
 using WoWCore.Common.Logging;
@@ -37,8 +36,7 @@ namespace WoWCore.AuthServer
         /// <summary>
         /// Entrypoint of the authentication server.
         /// </summary>
-        /// <param name="args"></param>
-        private static void Main(string[] args) => Initialize();
+        private static void Main() => Initialize();
 
         private static void Initialize()
         {

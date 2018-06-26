@@ -35,19 +35,16 @@ namespace WoWCore.AuthServer
     {
         private readonly Server _server;
 
-        private readonly string _listenerIp;
-        private readonly int _listenerPort;
-
         public bool Running { get; private set; } = true;
 
         private AuthServer()
         {
-            _listenerIp = ConfigManager.Instance.GetSettings<AuthConfig>().Connection.ServerIp;
-            _listenerPort = ConfigManager.Instance.GetSettings<AuthConfig>().Connection.ServerPort;
+            var listenerIp = ConfigManager.Instance.GetSettings<AuthConfig>().Connection.ServerIp;
+            var listenerPort = ConfigManager.Instance.GetSettings<AuthConfig>().Connection.ServerPort;
 
-            _server = new Server(_listenerIp, _listenerPort, null, null, MessageReceived);
+            _server = new Server(listenerIp, listenerPort, null, null, MessageReceived);
 
-            LogManager.Instance.Log(LogManager.LogType.Info, "Listening on " + _listenerIp + ":" + _listenerPort + ".");
+            LogManager.Instance.Log(LogManager.LogType.Info, "Listening on " + listenerIp + ":" + listenerPort + ".");
         }
 
         public Task Start()
@@ -62,6 +59,8 @@ namespace WoWCore.AuthServer
                     case "quit":
                         LogManager.Instance.Log(LogManager.LogType.Info, "Stopping the authentication server.");
                         Running = false;
+                        break;
+                    default:
                         break;
                 }
             }
