@@ -21,8 +21,6 @@
  * SOFTWARE.
  */
 
-using System;
-using System.Threading.Tasks;
 using WoWCore.AuthServer.Config;
 using WoWCore.Common.Config;
 using WoWCore.Common.Logging;
@@ -30,33 +28,31 @@ using WoWCore.Common.Logging;
 namespace WoWCore.AuthServer
 {
     /// <summary>
-    /// Entrypoint class responsible for the authentication server.
+    ///     Entrypoint class responsible for the authentication server.
     /// </summary>
     internal class Program
     {
-        /// <summary>
-        /// Entrypoint of the authentication server.
-        /// </summary>
-        /// <param name="args"></param>
-        private static void Main(string[] args) => Initialize();
+        private const string CopyrightNotice =
+            "┌────────────────────────────────────────────────────────────────────┐\n" +
+            "│ WoWCore - World of Warcraft 1.12.x Server                          │\n" +
+            "│ Copyright (c) 2019 Stanislaw Schlosser <https://github.com/0x2aff> │\n" +
+            "└────────────────────────────────────────────────────────────────────┘";
 
+        /// <summary>
+        ///     Entrypoint of the authentication server.
+        /// </summary>
+        private static void Main()
+        {
+            Initialize();
+        }
+
+        /// <summary>
+        ///     Initialize the authentication server instance.
+        /// </summary>
         private static void Initialize()
         {
-            Console.Title = "WoWCore Authentication Server";
-
+            LogManager.Instance.Log(LogManager.LogType.Info, CopyrightNotice);
             ConfigManager.Instance.RegisterSettings<AuthConfig>("AuthServerConfig.json");
-
-            LogManager.Instance.Log(LogManager.LogType.Info, "┌─────────────────────────────────────────────────────────────────┐");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ WoWCore - World of Warcraft 1.12.x Server                       │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ Copyright (C) 2017 exceptionptr                                 │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "├─────────────────────────────────────────────────────────────────┤");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ This program is distributed in the hope that it will be useful, │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ but WITHOUT ANY WARRANTY; without even the implied warranty of  │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the   │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "│ GNU General Public License for more details.                    │");
-            LogManager.Instance.Log(LogManager.LogType.Info, "└─────────────────────────────────────────────────────────────────┘");
-
-            AuthServer.Instance.Start();
         }
     }
 }

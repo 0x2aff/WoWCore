@@ -34,17 +34,16 @@ namespace WoWCore.Common.Network
 {
     public sealed class Server : IDisposable
     {
-        private string _listenerIp;
         private readonly TcpListener _listener;
 
         private readonly CancellationTokenSource _tokenSource;
-        private CancellationToken _token;
+        private readonly CancellationToken _token;
 
         private readonly Func<string, bool> _clientConnected;
         private readonly Func<string, bool> _clientDisconnected;
         private readonly Func<string, byte[], bool> _messageReceived;
 
-        private int _activeClients;
+        public int ActiveClients { get; private set; }
         private readonly ConcurrentDictionary<string, Client> _clients;
 
         /// <summary>
@@ -58,31 +57,20 @@ namespace WoWCore.Common.Network
         public Server(string listenerIp, int listenerPort, Func<string, bool> clientConnected, Func<string, bool> clientDisconnected, 
             Func<string, byte[], bool> messageReceived)
         {
-            IPAddress listenerIpAddress;
-
             if (listenerPort < 1) throw new ArgumentOutOfRangeException(nameof(listenerPort));
 
             _clientConnected = clientConnected;
             _clientDisconnected = clientDisconnected;
             _messageReceived = messageReceived ?? throw new ArgumentNullException(nameof(messageReceived));
 
-            if (string.IsNullOrEmpty(listenerIp))
-            {
-                listenerIpAddress = IPAddress.Any;
-                _listenerIp = listenerIpAddress.ToString();
-            }
-            else
-            {
-                listenerIpAddress = IPAddress.Parse(listenerIp);
-                _listenerIp = listenerIp;
-            }
+            var listenerIpAddress = string.IsNullOrEmpty(listenerIp) ? IPAddress.Any : IPAddress.Parse(listenerIp);
 
             _listener = new TcpListener(listenerIpAddress, listenerPort);
 
             _tokenSource = new CancellationTokenSource();
             _token = _tokenSource.Token;
 
-            _activeClients = 0;
+            ActiveClients = 0;
             _clients = new ConcurrentDictionary<string, Client>();
 
             Task.Run(AcceptConnections, _token);
@@ -111,15 +99,14 @@ namespace WoWCore.Common.Network
         {
             _listener.Start();
 
-            while (true)
+            while (!_token.IsCancellationRequested)
             {
-                _token.ThrowIfCancellationRequested();
                 var client = await _listener.AcceptTcpClientAsync();
                 client.LingerState.Enabled = false;
 
                 await Task.Run(() =>
                 {
-                    _activeClients++;
+                    ActiveClients++;
 
                     var currentClient = new Client(client);
                     if (!AddClient(currentClient))
@@ -168,7 +155,7 @@ namespace WoWCore.Common.Network
             }
             finally
             {
-                _activeClients--;
+                ActiveClients--;
                 if (!RemoveClient(client))
                     LogManager.Instance.Log(LogManager.LogType.Error,
                         "Can't remove client (" + client.Ip + ":" + client.Port + ").");
