@@ -105,7 +105,7 @@ namespace WoWCore.Common.Network
         /// <returns>Boolean indicating if the message was sent successfully.</returns>
         public async Task<bool> SendAsync(string ip, int port, byte[] data)
         {
-            if (_clients.TryGetValue(new Guid(ip + ":" + port).ToString(), out var client))
+            if (_clients.TryGetValue(ip + ":" + port, out var client))
                 return await SendAsync(client, data).ConfigureAwait(false);
 
             return false;
@@ -223,12 +223,12 @@ namespace WoWCore.Common.Network
 
         private bool AddClient(Client client)
         {
-            return _clients.TryAdd(new Guid(client.Ip + ":" + client.Port).ToString(), client);
+            return _clients.TryAdd(client.Ip + ":" + client.Port, client);
         }
 
         private bool RemoveClient(Client client)
         {
-            return _clients.TryRemove(new Guid(client.Ip + ":" + client.Port).ToString(), out client);
+            return _clients.TryRemove(client.Ip + ":" + client.Port, out client);
         }
 
         private static bool IsConnected(Client client)
