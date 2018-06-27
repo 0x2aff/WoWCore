@@ -21,7 +21,13 @@
  * SOFTWARE.
  */
 
+using System;
+using System.Threading.Tasks;
+using WoWCore.AuthServer.Config;
 using WoWCore.Common;
+using WoWCore.Common.Config;
+using WoWCore.Common.Logging;
+using WoWCore.Common.Network;
 
 namespace WoWCore.AuthServer
 {
@@ -31,11 +37,65 @@ namespace WoWCore.AuthServer
     /// </summary>
     public class AuthServer : Singleton<AuthServer>
     {
+        private readonly Server _server;
+
         /// <summary>
         ///     Instantiates the <see cref="AuthServer" /> class.
         /// </summary>
         private AuthServer()
         {
+            var listenerIp = ConfigManager.Instance.GetSettings<AuthConfig>().Connection.ServerIp;
+            var listenerPort = ConfigManager.Instance.GetSettings<AuthConfig>().Connection.ServerPort;
+
+            _server = new Server(listenerIp, listenerPort, ClientConnected, ClientDisconnected, MessageReceived);
+
+            LogManager.Instance.Log(LogManager.LogType.Success,
+                $"Listening on {listenerIp}:{listenerPort}.");
+        }
+
+        public bool Running { get; private set; } = true;
+
+        /// <summary>
+        ///     Starts the authentication server runtime.
+        /// </summary>
+        /// <returns></returns>
+        public Task Start()
+        {
+            while (Running)
+            {
+                var userInput = Console.ReadLine();
+                if (string.IsNullOrEmpty(userInput)) continue;
+
+                switch (userInput)
+                {
+                    case "quit":
+                        LogManager.Instance.Log(LogManager.LogType.Info, "Stopping the authentication server.");
+                        Running = false;
+                        break;
+                    default:
+                        LogManager.Instance.Log(LogManager.LogType.Warning, "User input not valid. Ignoring command ...");
+                        break;
+                }
+            }
+
+            _server.Dispose();
+
+            return Task.CompletedTask;
+        }
+
+        private static bool ClientConnected(string ip, int port)
+        {
+            return true;
+        }
+
+        private static bool ClientDisconnected(string ip, int port)
+        {
+            return true;
+        }
+
+        private static bool MessageReceived(string ip, int port, byte[] data)
+        {
+            return true;
         }
     }
 }

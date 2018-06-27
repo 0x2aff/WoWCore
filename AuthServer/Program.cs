@@ -21,6 +21,7 @@
  * SOFTWARE.
  */
 
+using System;
 using WoWCore.AuthServer.Config;
 using WoWCore.Common.Config;
 using WoWCore.Common.Logging;
@@ -51,8 +52,10 @@ namespace WoWCore.AuthServer
         /// </summary>
         private static void Initialize()
         {
-            LogManager.Instance.Log(LogManager.LogType.Info, CopyrightNotice);
+            Console.WriteLine(CopyrightNotice);
             ConfigManager.Instance.RegisterSettings<AuthConfig>("AuthServerConfig.json");
+
+            AuthServer.Instance.Start();
         }
     }
 }
