@@ -21,14 +21,21 @@
  * SOFTWARE.
  */
 
-namespace WoWCore.AuthServer.Config
+using WoWCore.Common;
+
+namespace WoWCore.AuthServer
 {
+    /// <inheritdoc />
     /// <summary>
-    ///     Defines the configuration for connection settings.
+    ///     Defines the authentication server.
     /// </summary>
-    public class ConnectionConfig
+    public class AuthServer : Singleton<AuthServer>
     {
-        public string ServerIp { get; set; }
-        public int ServerPort { get; set; }
+        /// <summary>
+        ///     Instantiates the <see cref="AuthServer" /> class.
+        /// </summary>
+        private AuthServer()
+        {
+        }
     }
 }

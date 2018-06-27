@@ -25,6 +25,9 @@ using WoWCore.Common.Config;
 
 namespace WoWCore.AuthServer.Config
 {
+    /// <summary>
+    ///     Defines the authentication server configuration settings.
+    /// </summary>
     public class AuthConfig : IConfig
     {
         public ConnectionConfig Connection { get; set; }

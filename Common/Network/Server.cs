@@ -32,15 +32,19 @@ using WoWCore.Common.Logging;
 
 namespace WoWCore.Common.Network
 {
+    /// <inheritdoc />
+    /// <summary>
+    ///     Defines the TCP server.
+    /// </summary>
     public sealed class Server : IDisposable
     {
         private readonly Func<string, int, bool> _clientConnected;
         private readonly Func<string, int, bool> _clientDisconnected;
-        private readonly Func<string, int, byte[], bool> _messageReceived;
 
         private readonly ConcurrentDictionary<string, Client> _clients;
 
         private readonly TcpListener _listener;
+        private readonly Func<string, int, byte[], bool> _messageReceived;
         private readonly CancellationToken _token;
 
         private readonly CancellationTokenSource _tokenSource;

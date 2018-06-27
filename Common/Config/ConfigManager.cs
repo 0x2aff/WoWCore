@@ -21,22 +21,30 @@
  * SOFTWARE.
  */
 
-using Newtonsoft.Json;
 using System;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace WoWCore.Common.Config
 {
+    /// <inheritdoc />
+    /// <summary>
+    ///     Defines the configuration manager.
+    /// </summary>
     public sealed class ConfigManager : Singleton<ConfigManager>
     {
         private IConfig _settings;
 
-        private ConfigManager() { }
+        private ConfigManager()
+        {
+        }
 
         /// <summary>
-        /// Register a loaded config file to make it globally available.
+        ///     Register a loaded config file to make it globally available.
         /// </summary>
-        /// <typeparam name="T"><see cref="IConfig"/></typeparam>
+        /// <typeparam name="T">
+        ///     <see cref="IConfig" />
+        /// </typeparam>
         /// <param name="fileName">The name/path of the config file.</param>
         public void RegisterSettings<T>(string fileName) where T : IConfig
         {
@@ -47,14 +55,18 @@ namespace WoWCore.Common.Config
             catch (Exception e)
             {
                 throw new Exception(e.Message);
-            }    
+            }
         }
 
         /// <summary>
-        /// Get the config.
+        ///     Get the config.
         /// </summary>
-        /// <typeparam name="T"><see cref="IConfig"/></typeparam>
-        /// <returns><see cref="IConfig"/></returns>
+        /// <typeparam name="T">
+        ///     <see cref="IConfig" />
+        /// </typeparam>
+        /// <returns>
+        ///     <see cref="IConfig" />
+        /// </returns>
         public T GetSettings<T>() where T : IConfig
         {
             return (T) _settings;

@@ -27,8 +27,23 @@ using System.Reflection;
 
 namespace WoWCore.Common.Logging
 {
+    /// <inheritdoc />
+    /// <summary>
+    ///     Defines the log manager.
+    /// </summary>
     public sealed class LogManager : Singleton<LogManager>
     {
+        /// <summary>
+        ///     LogType to decide the output text.
+        /// </summary>
+        public enum LogType
+        {
+            Info,
+            Success,
+            Warning,
+            Error
+        }
+
         private readonly StreamWriter _streamWriter;
 
         private LogManager()
@@ -37,13 +52,13 @@ namespace WoWCore.Common.Logging
             {
                 var fullPath = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location) + "/data/logs/";
 
-                if (!Directory.Exists(fullPath))
-                {
-                    Directory.CreateDirectory(fullPath);
-                }
+                if (!Directory.Exists(fullPath)) Directory.CreateDirectory(fullPath);
 
-                var logFile = File.Open(fullPath + "[" + DateTime.Now.ToString("dd.MM.yy") + "] " + Assembly.GetEntryAssembly().GetName().Name + ".log", FileMode.Append, FileAccess.Write);
-                _streamWriter = new StreamWriter(logFile) { AutoFlush = true };
+                var logFile =
+                    File.Open(
+                        fullPath + "[" + DateTime.Now.ToString("dd.MM.yy") + "] " +
+                        Assembly.GetEntryAssembly().GetName().Name + ".log", FileMode.Append, FileAccess.Write);
+                _streamWriter = new StreamWriter(logFile) {AutoFlush = true};
             }
             catch (Exception e)
             {
@@ -54,20 +69,11 @@ namespace WoWCore.Common.Logging
         }
 
         /// <summary>
-        /// LogType to decide the output text.
+        ///     Creates a new log messages.
         /// </summary>
-        public enum LogType
-        {
-            Info,
-            Success,
-            Warning,
-            Error
-        }
-
-        /// <summary>
-        /// Creates a new log messages.
-        /// </summary>
-        /// <param name="type"><see cref="LogType"/></param>
+        /// <param name="type">
+        ///     <see cref="LogType" />
+        /// </param>
         /// <param name="message">The log message</param>
         public void Log(LogType type, string message)
         {

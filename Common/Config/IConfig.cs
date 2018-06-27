@@ -24,10 +24,9 @@
 namespace WoWCore.Common.Config
 {
     /// <summary>
-    /// Marker interface pattern.
+    ///     Marker interface pattern.
     /// </summary>
     public interface IConfig
     {
-
     }
 }

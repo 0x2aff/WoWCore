@@ -28,7 +28,7 @@ using WoWCore.Common.Logging;
 namespace WoWCore.AuthServer
 {
     /// <summary>
-    ///     Entrypoint class responsible for the authentication server.
+    ///     Defines the entrypoint class responsible for the authentication server.
     /// </summary>
     internal class Program
     {

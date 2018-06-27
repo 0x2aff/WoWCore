@@ -27,11 +27,11 @@ using System.Reflection;
 namespace WoWCore.Common
 {
     /// <summary>
-    /// Generic Singleton implementing the pattern in a thread safe and lazy way.
+    ///     Generic Singleton implementing the pattern in a thread safe and lazy way.
     /// </summary>
     /// <remarks>
-    /// This class uses reflection to solve a limitation in the generics pattern to allocate the T type.
-    /// If the T type has a public constructor it will throw an exception.
+    ///     This class uses reflection to solve a limitation in the generics pattern to allocate the T type.
+    ///     If the T type has a public constructor it will throw an exception.
     /// </remarks>
     /// <typeparam name="T">The type that should be a unique instance.</typeparam>
     public abstract class Singleton<T> where T : class
@@ -51,7 +51,7 @@ namespace WoWCore.Common
             {
                 var ctorsPublic = type.GetConstructors(BindingFlags.Instance | BindingFlags.Public);
 
-                if(ctorsPublic.Length > 0)
+                if (ctorsPublic.Length > 0)
                     throw new Exception(type.FullName + " has one or more public constructors so the " +
                                         "property cannot be enforced.");
 
@@ -68,8 +68,8 @@ namespace WoWCore.Common
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("The Singleton couldn't be constructed, check if" + type.FullName + 
-                        " has a default constructor", e);
+                    throw new Exception("The Singleton couldn't be constructed, check if" + type.FullName +
+                                        " has a default constructor", e);
                 }
             }
         }

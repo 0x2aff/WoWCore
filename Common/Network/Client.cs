@@ -27,6 +27,10 @@ using System.Net.Sockets;
 
 namespace WoWCore.Common.Network
 {
+    /// <inheritdoc />
+    /// <summary>
+    ///     Defines the client.
+    /// </summary>
     public class Client : IDisposable
     {
         /// <summary>
