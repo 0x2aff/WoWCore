@@ -85,11 +85,13 @@ namespace WoWCore.AuthServer
 
         private static bool ClientConnected(string ip, int port)
         {
+            LogManager.Instance.Log(LogManager.LogType.Info, $"Client ({ip}:{port}) connected.");
             return true;
         }
 
         private static bool ClientDisconnected(string ip, int port)
         {
+            LogManager.Instance.Log(LogManager.LogType.Info, $"Client ({ip}:{port}) disconnected.");
             return true;
         }
 
