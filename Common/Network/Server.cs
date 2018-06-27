@@ -34,65 +34,88 @@ namespace WoWCore.Common.Network
 {
     public sealed class Server : IDisposable
     {
-        private readonly TcpListener _listener;
+        private readonly Func<string, int, bool> _clientConnected;
+        private readonly Func<string, int, bool> _clientDisconnected;
+        private readonly Func<string, int, byte[], bool> _messageReceived;
 
-        private readonly CancellationTokenSource _tokenSource;
-        private readonly CancellationToken _token;
-
-        private readonly Func<string, bool> _clientConnected;
-        private readonly Func<string, bool> _clientDisconnected;
-        private readonly Func<string, byte[], bool> _messageReceived;
-
-        public int ActiveClients { get; private set; }
         private readonly ConcurrentDictionary<string, Client> _clients;
 
+        private readonly TcpListener _listener;
+        private readonly CancellationToken _token;
+
+        private readonly CancellationTokenSource _tokenSource;
+
         /// <summary>
-        /// Initialize the TCP server.
+        ///     Instantiates the server.
         /// </summary>
-        /// <param name="listenerIp">The IP address on which the server should listen, nullable</param>
-        /// <param name="listenerPort">The TCP port on which the server should listen.</param>
+        /// <param name="listenerIp">The IP address on which the server should listen, nullable.</param>
+        /// <param name="listenerPort">The port on which the server should listen.</param>
         /// <param name="clientConnected">Function to be called when a client connects.</param>
         /// <param name="clientDisconnected">Function to be called when a client disconnects.</param>
         /// <param name="messageReceived">Function to be called when a message is received.</param>
-        public Server(string listenerIp, int listenerPort, Func<string, bool> clientConnected, Func<string, bool> clientDisconnected, 
-            Func<string, byte[], bool> messageReceived)
+        public Server(string listenerIp, int listenerPort, Func<string, int, bool> clientConnected,
+            Func<string, int, bool> clientDisconnected, Func<string, int, byte[], bool> messageReceived)
         {
-            if (listenerPort < 1) throw new ArgumentOutOfRangeException(nameof(listenerPort));
-
+            string listenerIp1;
+            IPAddress listenerAddress;
             _clientConnected = clientConnected;
             _clientDisconnected = clientDisconnected;
             _messageReceived = messageReceived ?? throw new ArgumentNullException(nameof(messageReceived));
 
-            var listenerIpAddress = string.IsNullOrEmpty(listenerIp) ? IPAddress.Any : IPAddress.Parse(listenerIp);
+            if (string.IsNullOrEmpty(listenerIp))
+            {
+                listenerAddress = IPAddress.Any;
+                listenerIp1 = listenerAddress.ToString();
+            }
+            else
+            {
+                listenerAddress = IPAddress.Parse(listenerIp);
+                listenerIp1 = listenerIp;
+            }
 
-            _listener = new TcpListener(listenerIpAddress, listenerPort);
+            if (listenerPort < 1) throw new ArgumentOutOfRangeException(nameof(listenerPort));
+            var listenerPort1 = listenerPort;
 
+            LogManager.Instance.Log(LogManager.LogType.Info, $"Server starting on {listenerIp1}:{listenerPort1}.");
+
+            _listener = new TcpListener(listenerAddress, listenerPort1);
             _tokenSource = new CancellationTokenSource();
             _token = _tokenSource.Token;
 
-            ActiveClients = 0;
             _clients = new ConcurrentDictionary<string, Client>();
 
-            Task.Run(AcceptConnections, _token);
-        }
-
-        /// <summary>
-        /// Send data to the specified client, asynchronously.
-        /// </summary>
-        /// <param name="ipPort">IP:Port of the recipient client.</param>
-        /// <param name="data">Byte array containing data.</param>
-        /// <returns>Task with Boolean indicating if the message was sent successfully.</returns>
-        public async Task<bool> SendAsync(string ipPort, byte[] data)
-        {
-            if (_clients.TryGetValue(ipPort, out var client)) return await MessageWriteAsync(client, data);
-
-            LogManager.Instance.Log(LogManager.LogType.Error, "Unable to send message to client (" + ipPort + ").");
-            return false;
+            Task.Run(AcceptConnections, _token).ConfigureAwait(false);
         }
 
         public void Dispose()
         {
-            _tokenSource.Cancel();
+            _tokenSource?.Dispose();
+        }
+
+        /// <summary>
+        ///     Send data to the specified client, asynchronously.
+        /// </summary>
+        /// <param name="ip">The IP address of the client.</param>
+        /// <param name="port">The port of the client.</param>
+        /// <param name="data">Byte array containing data.</param>
+        /// <returns>Boolean indicating if the message was sent successfully.</returns>
+        public async Task<bool> SendAsync(string ip, int port, byte[] data)
+        {
+            if (_clients.TryGetValue(new Guid(ip + ":" + port).ToString(), out var client))
+                return await SendAsync(client, data).ConfigureAwait(false);
+
+            return false;
+        }
+
+        /// <summary>
+        ///     Send data to the specified client, asynchronously.
+        /// </summary>
+        /// <param name="client">The <see cref="Client" />.</param>
+        /// <param name="data">Byte array containing data.</param>
+        /// <returns>Boolean indicating if the message was sent successfully.</returns>
+        public async Task<bool> SendAsync(Client client, byte[] data)
+        {
+            return await MessageWriteAsync(client, data).ConfigureAwait(false);
         }
 
         private async Task AcceptConnections()
@@ -100,39 +123,35 @@ namespace WoWCore.Common.Network
             _listener.Start();
 
             while (!_token.IsCancellationRequested)
-            {
-                var client = await _listener.AcceptTcpClientAsync();
-                client.LingerState.Enabled = false;
-
-                await Task.Run(() =>
+                try
                 {
-                    ActiveClients++;
+                    var tcpClient = await _listener.AcceptTcpClientAsync();
+                    tcpClient.LingerState.Enabled = false;
 
-                    var currentClient = new Client(client);
-                    if (!AddClient(currentClient))
+                    var client = new Client(tcpClient);
+
+                    if (!AddClient(client))
                     {
-                        client.Close();
+                        client.Dispose();
                         return;
                     }
 
-                    var dataReceiverToken = default(CancellationToken);
-
                     if (_clientConnected != null)
-                        Task.Run(() => _clientConnected(currentClient.Ip + ":" + currentClient.Port), _token);
+                        await Task.Run(() => _clientConnected(client.Ip, client.Port), _token).ConfigureAwait(false);
 
-                    Task.Run(async () => await DataReceiver(currentClient, dataReceiverToken), dataReceiverToken);
-                }, _token);
-            }
+                    await Task.Run(() => DataReceiver(client), _token).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    LogManager.Instance.Log(LogManager.LogType.Error, e.Message);
+                }
         }
 
-        private async Task DataReceiver(Client client, CancellationToken? cancellationToken = null)
+        private async Task DataReceiver(Client client)
         {
             try
             {
-                while (true)
-                {
-                    cancellationToken?.ThrowIfCancellationRequested();
-
+                while (!_token.IsCancellationRequested)
                     try
                     {
                         if (!IsConnected(client)) break;
@@ -144,31 +163,29 @@ namespace WoWCore.Common.Network
                             continue;
                         }
 
-                        if (_messageReceived != null) { }
-                            await Task.Run(() => _messageReceived(client.Ip + ":" + client.Port, data), _token);
+                        if (_messageReceived != null)
+                            await Task.Run(() => _messageReceived(client.Ip, client.Port, data), _token)
+                                .ConfigureAwait(false);
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
-                        break;
+                        LogManager.Instance.Log(LogManager.LogType.Error, e.Message);
                     }
-                }
             }
             finally
             {
-                ActiveClients--;
                 if (!RemoveClient(client))
                     LogManager.Instance.Log(LogManager.LogType.Error,
-                        "Can't remove client (" + client.Ip + ":" + client.Port + ").");
+                        $"Can't remove client ({client.Ip}:{client.Port}).");
 
                 if (_clientDisconnected != null)
-                    await Task.Run(() => _clientDisconnected(client.Ip + ":" + client.Port), _token);
+                    await Task.Run(() => _clientDisconnected(client.Ip, client.Port), _token).ConfigureAwait(false);
             }
         }
 
         private async Task<byte[]> MessageReadAsync(Client client)
         {
             var clientStream = client.TcpClient.GetStream();
-
             if (!clientStream.CanRead || !clientStream.DataAvailable) return null;
 
             var readBuffer = new byte[client.TcpClient.ReceiveBufferSize];
@@ -177,12 +194,12 @@ namespace WoWCore.Common.Network
                 do
                 {
                     var numBytesRead = await clientStream.ReadAsync(readBuffer, 0, readBuffer.Length, _token);
+
                     if (numBytesRead <= 0)
                         break;
 
                     await memoryStream.WriteAsync(readBuffer, 0, numBytesRead, _token);
-                }
-                while (clientStream.DataAvailable);
+                } while (clientStream.DataAvailable);
 
                 return memoryStream.ToArray();
             }
@@ -194,10 +211,20 @@ namespace WoWCore.Common.Network
                 return false;
 
             var clientStream = client.TcpClient.GetStream();
-            await clientStream.WriteAsync(data, 0, data.Length, _token);
-            await clientStream.FlushAsync(_token);
+            await clientStream.WriteAsync(data, 0, data.Length, _token).ConfigureAwait(false);
+            await clientStream.FlushAsync(_token).ConfigureAwait(false);
 
             return true;
+        }
+
+        private bool AddClient(Client client)
+        {
+            return _clients.TryAdd(new Guid(client.Ip + ":" + client.Port).ToString(), client);
+        }
+
+        private bool RemoveClient(Client client)
+        {
+            return _clients.TryRemove(new Guid(client.Ip + ":" + client.Port).ToString(), out client);
         }
 
         private static bool IsConnected(Client client)
@@ -207,18 +234,7 @@ namespace WoWCore.Common.Network
             if (!client.TcpClient.Client.Poll(0, SelectMode.SelectWrite) ||
                 client.TcpClient.Client.Poll(0, SelectMode.SelectError)) return false;
 
-            var buffer = new byte[1];
-            return client.TcpClient.Client.Receive(buffer, SocketFlags.Peek) != 0;
-        }
-
-        private bool AddClient(Client client)
-        {
-            return _clients.TryAdd(client.Ip + ":" + client.Port, client);
-        }
-
-        private bool RemoveClient(Client client)
-        {
-            return _clients.TryRemove(client.Ip + ":" + client.Port, out client);
+            return client.TcpClient.Client.Receive(new byte[1], SocketFlags.Peek) != 0;
         }
     }
 }
