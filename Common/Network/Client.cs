@@ -27,21 +27,44 @@ using System.Net.Sockets;
 
 namespace WoWCore.Common.Network
 {
-    public class Client
+    public class Client : IDisposable
     {
-        public string Ip { get; set; }
-        public int Port { get; set; }
-
-        public TcpClient TcpClient { get; set; }
-
+        /// <summary>
+        ///     Instantiates the <see cref="Client" /> class.
+        /// </summary>
+        /// <param name="tcpClient">Client connection for the TCP network service.</param>
         public Client(TcpClient tcpClient)
         {
             if (tcpClient == null) throw new ArgumentNullException(nameof(tcpClient));
 
-            Ip = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address.ToString();
-            Port = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Port;
+            Ip = ((IPEndPoint) tcpClient.Client.RemoteEndPoint).Address.ToString();
+            Port = ((IPEndPoint) tcpClient.Client.RemoteEndPoint).Port;
 
             TcpClient = tcpClient;
+        }
+
+        /// <summary>
+        ///     IP address of the client.
+        /// </summary>
+        public string Ip { get; }
+
+        /// <summary>
+        ///     Port of the client.
+        /// </summary>
+        public int Port { get; }
+
+        /// <summary>
+        ///     Client connection for the TCP network service.
+        /// </summary>
+        public TcpClient TcpClient { get; }
+
+        /// <inheritdoc />
+        /// <summary>
+        ///     Releases the managed and unmanaged resources used by the <see cref="T:WoWCore.Common.Network.Client" />.
+        /// </summary>
+        public void Dispose()
+        {
+            TcpClient?.Dispose();
         }
     }
 }
